@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Врачи - {{ specialization.name }}{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <h1>Врачи - {{ specialization.name }}</h1>
+    <p>Выберите врача для записи на прием</p>
+</div>
+
+<div class="breadcrumbs">
+    <a href="{% url 'index' %}">Главная</a> &gt;
+    <a href="{% url 'specializations' %}">Специализации</a> &gt;
+    <span>{{ specialization.name }}</span>
+</div>
+
+<div class="doctors-list">
+    {% for doctor in doctors %}
+    <div class="doctor-card">
+        <div class="doctor-photo">
+            {% if doctor.photo %}
+                <img src="{{ doctor.photo.url }}" alt="{{ doctor.last_name }} {{ doctor.first_name }}">
+            {% else %}
+                <i class="fas fa-user-md"></i>
+            {% endif %}
+        </div>
+        <div class="doctor-info">
+            <h2 class="doctor-name">Доктор {{ doctor.last_name }} {{ doctor.first_name }}</h2>
+            <p class="doctor-specialization">{{ doctor.specialization.name }}</p>
+            <span class="doctor-experience">
+                Стаж: {{ doctor.experience }} лет
+            </span>
+            <p class="doctor-description">{{ doctor.description|default:"Квалифицированный специалист в своей области." }}</p>
+            <a href="{% url 'schedule' doctor.id %}" class="btn btn-primary">
+                <i class="fas fa-calendar-plus"></i> Записаться на прием
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <i class="fas fa-user-md fa-4x"></i>
+        <h3>Врачи данной специализации временно недоступны</h3>
+        <p>Пожалуйста, выберите другую специализацию или проверьте позже</p>
+        <a href="{% url 'specializations' %}" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Вернуться к специализациям
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="back-to-home">
+    <a href="{% url 'specializations' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Назад к специализациям
+    </a>
+</div>
+{% endblock %}

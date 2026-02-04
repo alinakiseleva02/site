@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Специализации - Запись к врачу{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <h1>Выберите специализацию врача</h1>
+    <p>Выберите направление, в котором вам нужна консультация</p>
+</div>
+
+<div class="specializations-list">
+    <div class="cards-grid">
+        {% for specialization in specializations %}
+        <div class="card">
+            <div class="card-icon">
+                <i class="{{ specialization.icon }}"></i>
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">{{ specialization.name }}</h3>
+                <p class="card-text">{{ specialization.description|default:"Консультация и лечение по данному направлению" }}</p>
+                <a href="{% url 'doctors_by_specialization' specialization.id %}" class="btn btn-primary">
+                    Выбрать врача <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-user-md fa-4x"></i>
+            <h3>Специализации временно недоступны</h3>
+            <p>Пожалуйста, проверьте позже</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="back-to-home">
+    <a href="{% url 'index' %}" class="btn btn-secondary">
+        <i class="fas fa-home"></i> Вернуться на главную
+    </a>
+</div>
+{% endblock %}

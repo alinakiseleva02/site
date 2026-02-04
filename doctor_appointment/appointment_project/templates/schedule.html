@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Расписание - {{ doctor.last_name }} {{ doctor.first_name }}{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <h1>Выберите дату и время</h1>
+    <p>Запись к врачу: {{ doctor.last_name }} {{ doctor.first_name }}</p>
+    <p class="doctor-specialization">{{ doctor.specialization.name }}</p>
+</div>
+
+<div class="breadcrumbs">
+    <a href="{% url 'index' %}">Главная</a> &gt;
+    <a href="{% url 'specializations' %}">Специализации</a> &gt;
+    <a href="{% url 'doctors_by_specialization' doctor.specialization.id %}">{{ doctor.specialization.name }}</a> &gt;
+    <span>Расписание</span>
+</div>
+
+<div class="date-selection">
+    <h2>Выберите дату приема</h2>
+    <div class="date-selector">
+        {% for date in date_list %}
+        <div class="date-item {% if date|date:'Y-m-d' in schedule_by_date %}active{% endif %}" 
+             data-date="{{ date|date:'Y-m-d' }}">
+            <div class="date-day">{{ date.day }}</div>
+            <div class="date-month">{{ date|date:'M' }}</div>
+            <div class="date-weekday">{{ date|date:'D' }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="time-selection">
+    <h2>Доступное время</h2>
+    <div id="time-slots-container">
+        <p class="text-center">Выберите дату для отображения доступного времени</p>
+    </div>
+</div>
+
+<div class="doctor-info-summary">
+    <h3>Информация о враче:</h3>
+    <div class="summary-card">
+        <div class="doctor-photo-small">
+            {% if doctor.photo %}
+                <img src="{{ doctor.photo.url }}" alt="{{ doctor.last_name }} {{ doctor.first_name }}">
+            {% else %}
+                <i class="fas fa-user-md"></i>
+            {% endif %}
+        </div>
+        <div class="doctor-info-small">
+            <h4>Др. {{ doctor.last_name }} {{ doctor.first_name }}</h4>
+            <p>{{ doctor.specialization.name }}</p>
+            <p>Стаж: {{ doctor.experience }} лет</p>
+        </div>
+    </div>
+</div>
+
+<div class="back-to-doctors">
+    <a href="{% url 'doctors_by_specialization' doctor.specialization.id %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Назад к выбору врача
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateItems = document.querySelectorAll('.date-item');
+    const timeSlotsContainer = document.getElementById('time-slots-container');
+    
+    // Данные о расписании из Django
+    const scheduleData = {{ schedule_by_date|safe }};
+    
+    dateItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Удаляем активный класс у всех элементов
+            dateItems.forEach(d => d.classList.remove('active'));
+            // Добавляем активный класс текущему элементу
+            this.classList.add('active');
+            
+            const selectedDate = this.dataset.date;
+            showTimeSlots(selectedDate);
+        });
+    });
+    
+    // Показать слоты времени для выбранной даты
+    function showTimeSlots(date) {
+        if (scheduleData[date]) {
+            let html = '<div class="time-slots">';
+            
+            scheduleData[date].forEach(slot => {
+                const time = new Date('1970-01-01T' + slot.start_time + 'Z');
+                const formattedTime = time.toLocaleTimeString('ru-RU', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    timeZone: 'UTC'
+                });
+                
+                html += `
+                    <a href="{% url 'book_appointment' 0 %}".replace('0', slot.id) class="time-slot">
+                        ${formattedTime}
+                    </a>
+                `;
+            });
+            
+            html += '</div>';
+            timeSlotsContainer.innerHTML = html;
+        } else {
+            timeSlotsContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times fa-3x"></i>
+                    <h3>Нет доступных записей на выбранную дату</h3>
+                    <p>Пожалуйста, выберите другую дату</p>
+                </div>
+            `;
+        }
+    }
+    
+    // Автоматически выбираем первую доступную дату
+    const firstAvailableDate = document.querySelector('.date-item.active');
+    if (firstAvailableDate) {
+        firstAvailableDate.click();
+    }
+});
+</script>
+{% endblock %}

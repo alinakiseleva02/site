@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная - Запись к врачу{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <h1>Запись на прием к врачу</h1>
+    <p>Выберите специалиста, удобное время и запишитесь на прием онлайн</p>
+</div>
+
+<div class="welcome-section">
+    <div class="welcome-card">
+        <h2><i class="fas fa-calendar-check"></i> Простая запись за 3 шага</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Выберите специалиста</h3>
+                <p>Терапевт, кардиолог, невролог и другие</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Выберите дату и время</h3>
+                <p>Удобное для вас время приема</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Подтвердите запись</h3>
+                <p>Введите ваши данные и получите подтверждение</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="specializations-preview">
+    <h2 class="section-title">Популярные специализации</h2>
+    <div class="cards-grid">
+        {% for specialization in specializations|slice:":4" %}
+        <div class="card">
+            <div class="card-icon">
+                <i class="{{ specialization.icon }}"></i>
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">{{ specialization.name }}</h3>
+                <p class="card-text">{{ specialization.description|truncatechars:100 }}</p>
+                <a href="{% url 'doctors_by_specialization' specialization.id %}" class="btn btn-primary">
+                    Выбрать врача
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="text-center">
+        <a href="{% url 'specializations' %}" class="btn btn-secondary">Все специализации</a>
+    </div>
+</div>
+
+<div class="doctors-preview">
+    <h2 class="section-title">Наши врачи</h2>
+    <div class="cards-grid">
+        {% for doctor in doctors %}
+        <div class="card">
+            <div class="doctor-photo-preview">
+                {% if doctor.photo %}
+                    <img src="{{ doctor.photo.url }}" alt="{{ doctor.last_name }} {{ doctor.first_name }}">
+                {% else %}
+                    <i class="fas fa-user-md"></i>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">Др. {{ doctor.last_name }} {{ doctor.first_name }}</h3>
+                <p class="doctor-specialty">{{ doctor.specialization.name }}</p>
+                <p class="doctor-experience-preview">Стаж: {{ doctor.experience }} лет</p>
+                <a href="{% url 'schedule' doctor.id %}" class="btn btn-primary">Записаться на прием</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="features">
+    <h2 class="section-title">Преимущества онлайн-записи</h2>
+    <div class="features-grid">
+        <div class="feature">
+            <i class="fas fa-clock"></i>
+            <h3>Экономия времени</h3>
+            <p>Запишитесь на прием без очередей и ожидания</p>
+        </div>
+        <div class="feature">
+            <i class="fas fa-calendar-alt"></i>
+            <h3>Удобное время</h3>
+            <p>Выбирайте время приема, которое подходит именно вам</p>
+        </div>
+        <div class="feature">
+            <i class="fas fa-user-md"></i>
+            <h3>Лучшие специалисты</h3>
+            <p>Квалифицированные врачи с многолетним опытом</p>
+        </div>
+        <div class="feature">
+            <i class="fas fa-bell"></i>
+            <h3>Напоминания</h3>
+            <p>Получайте напоминания о визите к врачу</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
