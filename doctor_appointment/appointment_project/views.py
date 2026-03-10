@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from datetime import datetime, timedelta
+from django.urls import reverse
 from .models import Specialization, Doctor, Schedule, Appointment
 from .forms import AppointmentForm
 
@@ -92,3 +93,37 @@ def appointment_confirmation(request, appointment_id):
         'appointment': appointment,
     }
     return render(request, 'appointment_confirmation.html', context)
+
+def schedule(request, doctor_id):
+    doctor = get_object_or_404(Doctor, id=doctor_id)
+    today = timezone.now().date()
+    start_date = today + timedelta(days=1)
+    end_date = start_date + timedelta(days=14)
+    date_list = []
+    current_date = start_date
+    while current_date <= end_date:
+        date_list.append(current_date)
+        current_date += timedelta(days=1)
+    schedules = Schedule.objects.filter(
+        doctor=doctor,
+        date__range=[start_date, end_date],
+        is_available=True
+    ).order_by('date', 'start_time')
+    schedule_by_date = {}
+    for schedule_item in schedules:
+        date_str = schedule_item.date.strftime('%Y-%m-%d')
+        if date_str not in schedule_by_date:
+            schedule_by_date[date_str] = []
+        schedule_by_date[date_str].append({
+            'id': schedule_item.id,
+            'start_time': schedule_item.start_time.strftime('%H:%M'),
+            'end_time': schedule_item.end_time.strftime('%H:%M'),
+            'book_url': reverse('book_appointment', args=[schedule_item.id])
+        })
+    
+    context = {
+        'doctor': doctor,
+        'date_list': date_list,
+        'schedule_by_date': schedule_by_date,
+    }
+    return render(request, 'schedule.html', context)

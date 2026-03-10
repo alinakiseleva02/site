@@ -67,38 +67,26 @@
 document.addEventListener('DOMContentLoaded', function() {
     const dateItems = document.querySelectorAll('.date-item');
     const timeSlotsContainer = document.getElementById('time-slots-container');
-    
-    // Данные о расписании из Django
     const scheduleData = {{ schedule_by_date|safe }};
     
     dateItems.forEach(item => {
         item.addEventListener('click', function() {
-            // Удаляем активный класс у всех элементов
             dateItems.forEach(d => d.classList.remove('active'));
-            // Добавляем активный класс текущему элементу
             this.classList.add('active');
             
             const selectedDate = this.dataset.date;
             showTimeSlots(selectedDate);
         });
     });
-    
-    // Показать слоты времени для выбранной даты
     function showTimeSlots(date) {
-        if (scheduleData[date]) {
-            let html = '<div class="time-slots">';
+        if (scheduleData[date] && scheduleData[date].length > 0) {
+            let html = '<h3>Доступное время:</h3>';
+            html += '<div class="time-slots">';
             
             scheduleData[date].forEach(slot => {
-                const time = new Date('1970-01-01T' + slot.start_time + 'Z');
-                const formattedTime = time.toLocaleTimeString('ru-RU', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    timeZone: 'UTC'
-                });
-                
                 html += `
-                    <a href="{% url 'book_appointment' 0 %}".replace('0', slot.id) class="time-slot">
-                        ${formattedTime}
+                    <a href="${slot.book_url}" class="time-slot">
+                        ${slot.start_time}
                     </a>
                 `;
             });
@@ -115,11 +103,17 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
     }
-    
-    // Автоматически выбираем первую доступную дату
     const firstAvailableDate = document.querySelector('.date-item.active');
     if (firstAvailableDate) {
         firstAvailableDate.click();
+    } else if (dateItems.length > 0) {
+        for (let i = 0; i < dateItems.length; i++) {
+            const date = dateItems[i].dataset.date;
+            if (scheduleData[date] && scheduleData[date].length > 0) {
+                dateItems[i].click();
+                break;
+            }
+        }
     }
 });
 </script>

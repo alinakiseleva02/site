@@ -60,11 +60,11 @@
         {% for doctor in doctors %}
         <div class="card">
             <div class="doctor-photo-preview">
-                {% if doctor.photo %}
+                     {% if doctor.photo %}
                     <img src="{{ doctor.photo.url }}" alt="{{ doctor.last_name }} {{ doctor.first_name }}">
-                {% else %}
+                    {% else %}
                     <i class="fas fa-user-md"></i>
-                {% endif %}
+                    {% endif %}
             </div>
             <div class="card-body">
                 <h3 class="card-title">Др. {{ doctor.last_name }} {{ doctor.first_name }}</h3>
