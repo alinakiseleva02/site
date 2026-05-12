@@ -6,7 +6,6 @@
     <title>{% block title %}Запись к врачу{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/style.css">
-    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -21,11 +20,13 @@
                 <ul class="nav-links">
                     <li><a href="{% url 'index' %}">Главная</a></li>
                     <li><a href="{% url 'specializations' %}">Специализации</a></li>
-                    <li><a href="#"><i class="fas fa-phone"></i> +7 (999) 123-45-67</a></li>
+                    <li><a href="#map-section"><i class="fas fa-map-marker-alt"></i> На карте</a></li>
+                    <li><a href="#"><i class="fas fa-phone"></i> +7 (982) 181-03-28</a></li>
                 </ul>
             </nav>
         </div>
     </header>
+
     <main class="main-content">
         <div class="container">
             {% if messages %}
@@ -42,12 +43,13 @@
             {% endblock %}
         </div>
     </main>
+
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>MedBooking</h3>
-                    <p>Демонстрационная система записи на прием к врачу. Проект создан для демонстрации возможностей Django.</p>
+                    <p>С заботой о Вашем здоровье!</p>
                 </div>
                 <div class="footer-section">
                     <h3>Быстрые ссылки</h3>
@@ -61,17 +63,93 @@
                 <div class="footer-section">
                     <h3>Контакты</h3>
                     <ul class="footer-links">
-                        <li><i class="fas fa-map-marker-alt"></i> Москва, ул. Медицинская, д. 15</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Сургут, проспект Ленина, 43</li>
                         <li><i class="fas fa-phone"></i> +7 (999) 123-45-67</li>
-                        <li><i class="fas fa-envelope"></i> info@medbooking.demo</li>
+                        <li><i class="fas fa-envelope"></i> k_alinka28@mail.ru</li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; {% now "Y" %} MedBooking. Демонстрационный проект.</p>
+                <p>&copy; {% now "Y" %} MedBooking</p>
             </div>
         </div>
     </footer>
+
+
+    
+    <script>
+        let mainMap = null;
+        let footerMap = null;
+        
+        const clinicLocation = { lat: 61.2545, lng: 73.3968 };
+        
+        function initMaps() {
+            initMainMap();
+            initFooterMap();
+        }
+        
+        function initMainMap() {
+            const mainMapElement = document.getElementById('clinic-map');
+            if (mainMapElement) {
+                mainMap = new google.maps.Map(mainMapElement, {
+                    center: clinicLocation,
+                    zoom: 15,
+                    styles: [
+                        {
+                            featureType: 'poi',
+                            elementType: 'labels',
+                            stylers: [{ visibility: 'off' }]
+                        }
+                    ]
+                });
+                
+                new google.maps.Marker({
+                    position: clinicLocation,
+                    map: mainMap,
+                    title: 'MedBooking Клиника',
+                    animation: google.maps.Animation.DROP,
+                    icon: {
+                        url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                        scaledSize: new google.maps.Size(40, 40)
+                    }
+                });
+                
+                const infoWindow = new google.maps.InfoWindow({
+                    content: '<div style="padding: 10px;"><strong>MedBooking Клиника</strong><br>Сургут, проспект Ленина, 43<br>☎ +7 (999) 123-45-67</div>'
+                });
+                
+                setTimeout(() => {
+                    infoWindow.open(mainMap, new google.maps.Marker({ position: clinicLocation }));
+                }, 1000);
+            }
+        }
+        
+        function initFooterMap() {
+            const footerMapElement = document.getElementById('footer-map');
+            if (footerMapElement) {
+                footerMap = new google.maps.Map(footerMapElement, {
+                    center: clinicLocation,
+                    zoom: 14,
+                    disableDefaultUI: true,
+                    draggable: false,
+                    scrollwheel: false,
+                    zoomControl: false,
+                    scaleControl: false
+                });
+                
+                new google.maps.Marker({
+                    position: clinicLocation,
+                    map: footerMap,
+                    title: 'MedBooking Клиника'
+                });
+            }
+        }
+        
+        function openFullMap() {
+            window.open(`https://www.google.com/maps/search/?api=1&query=${clinicLocation.lat},${clinicLocation.lng}`, '_blank');
+        }
+    </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

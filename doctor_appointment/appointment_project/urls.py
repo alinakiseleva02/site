@@ -8,4 +8,5 @@ urlpatterns = [
     path('doctor/<int:doctor_id>/schedule/', views.schedule, name='schedule'),
     path('schedule/<int:schedule_id>/book/', views.book_appointment, name='book_appointment'),
     path('appointment/<int:appointment_id>/confirmation/', views.appointment_confirmation, name='appointment_confirmation'),
+    path('map/', views.map_view, name='map'),
 ]
